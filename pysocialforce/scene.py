@@ -1,8 +1,6 @@
 """This module tracks the state odf scene and scen elements like pedestrians, groups and obstacles"""
 from typing import List
-
 import numpy as np
-
 from pysocialforce.utils import stateutils
 
 
@@ -12,7 +10,7 @@ class PedState:
     def __init__(self, state, groups, config):
         self.default_tau = config("tau", 0.5)
         self.step_width = config("step_width", 0.4)
-        self.agent_radius = config("agent_radius", 0.35)
+        self.agent_radius = config("agent_radius", 0.3)
         self.max_speed_multiplier = config("max_speed_multiplier", 1.3)
 
         self.max_speeds = None
@@ -70,8 +68,11 @@ class PedState:
         # desired velocity
         desired_velocity = self.vel() + self.step_width * force
         desired_velocity = self.capped_velocity(desired_velocity, self.max_speeds)
+
+        # TODO: Is this the line that is not letting the simulation finish?
         # stop when arrived
-        desired_velocity[stateutils.desired_directions(self.state)[1] < 0.5] = [0, 0]
+        # desired_velocity[stateutils.desired_directions(self.state)[1] < 0.5] = [0, 0]
+        desired_velocity[stateutils.desired_directions(self.state)[1] < self.agent_radius] = [0, 0]
 
         # update state
         next_state = self.state
